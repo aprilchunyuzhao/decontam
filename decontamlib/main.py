@@ -11,7 +11,6 @@ import sys
 from decontamlib.version import __version__
 from decontamlib.tools import FilteringTool
 
-
 def get_config(user_config_file, organism):
     config = {
         "method": "bwa",
@@ -22,9 +21,10 @@ def get_config(user_config_file, organism):
 
     if user_config_file is None:
         if organism == "human":
-            default_user_config_fp = os.path.expanduser("~/.decontam_human.json")
+            default_user_config_fp = os.path.abspath("../configs/decontam_human.json")
+            #print(os.path.join(os.path.abspath(os.path.dirname(__file__)), "data"))
         elif organism == "phix":
-            default_user_config_fp = os.path.expanduser("~/.decontam_phix.json")
+            default_user_config_fp = os.path.abspath("../configs/decontam_phix.json")
         if os.path.exists(default_user_config_fp):
             user_config_file = open(default_user_config_fp)
 
@@ -43,7 +43,7 @@ def human_filter_main(argv=None):
         type=argparse.FileType("r"),
         help="FASTQ file of forward reads")
     p.add_argument(
-        "--reverse-reads", required=True,
+        "--reverse-reads", required=False,
         type=argparse.FileType("r"),
         help="FASTQ file of reverse reads")
     p.add_argument(
@@ -77,14 +77,20 @@ def human_filter_main(argv=None):
     p.add_argument(
         "--output-dir", required=True,
         help="Path to output directory")
+
     args = p.parse_args(argv)
 
     config = get_config(args.config_file, args.organism)
 
     fwd_fp = args.forward_reads.name
-    rev_fp = args.reverse_reads.name
     args.forward_reads.close()
-    args.reverse_reads.close()
+
+    ## for both assembled single and unassembled paired reads
+    if args.reverse_reads is None:
+        rev_fp = str(None)
+    else:
+        rev_fp = args.reverse_reads.name
+        args.reverse_reads.close()
 
     if args.sam_file is not None:
         config["method"] = "samfile"
@@ -102,8 +108,7 @@ def human_filter_main(argv=None):
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
 
-    summary_data = tool.decontaminate(fwd_fp, rev_fp, args.output_dir,
-                                      args.organism, args.pct, args.frac)
+    summary_data = tool.decontaminate(fwd_fp, rev_fp, args.output_dir, args.organism, args.pct, args.frac)
     save_summary(args.summary_file, config, summary_data)
 
 
@@ -133,3 +138,5 @@ def make_index_main(argv=None):
 
     if not tool.index_exists():
         tool.make_index()
+
+#human_filter_main()
