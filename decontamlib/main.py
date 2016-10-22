@@ -16,15 +16,15 @@ def get_config(user_config_file, organism):
         "method": "bwa",
         "bowtie2_fp": "bowtie2",
         "bwa_fp":"bwa",
-        "num_threads":8
+        "num_threads": 8
     }
 
     if user_config_file is None:
         if organism == "human":
-            default_user_config_fp = os.path.abspath("../configs/decontam_human.json")
+            default_user_config_fp = os.path.abspath("configs/decontam_human.json")
             #print(os.path.join(os.path.abspath(os.path.dirname(__file__)), "data"))
         elif organism == "phix":
-            default_user_config_fp = os.path.abspath("../configs/decontam_phix.json")
+            default_user_config_fp = os.path.abspath("configs/decontam_phix.json")
         if os.path.exists(default_user_config_fp):
             user_config_file = open(default_user_config_fp)
 
@@ -133,10 +133,10 @@ def make_index_main(argv=None):
         help="reference organism to filter from")
     args = p.parse_args(argv)
     config = get_config(args.config_file, args.organism)
-    
+
     tool = FilteringTool(config)
 
     if not tool.index_exists():
         tool.make_index()
 
-#human_filter_main()
+human_filter_main()
