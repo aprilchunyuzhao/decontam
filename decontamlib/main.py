@@ -21,12 +21,12 @@ def get_config(user_config_file, organism):
 
     if user_config_file is None:
         if organism == "human":
-            default_user_config_fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), "configs/decontam_human.json")
+            default_user_config_fp = os.path.expanduser("~/.decontam_human.json")
         elif organism == "phix":
-            default_user_config_fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), "configs/decontam_phix.json")
+            default_user_config_fp = os.path.expanduser("~/.decontam_phix.json")
         if os.path.exists(default_user_config_fp):
             user_config_file = open(default_user_config_fp)
-
+    
     if user_config_file is not None:
         user_config = json.load(user_config_file)
         config.update(user_config)
