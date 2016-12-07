@@ -105,7 +105,7 @@ class Bwa(_FilteringTool):
         return subprocess.check_output(cmd, stderr=subprocess.STDOUT)
 
     def index_exists(self):
-        return os.path.exists(self.index + ".amb" )
+        return os.path.exists(self.index + ".amb")
 
 
 class Bowtie(Bwa):
@@ -172,8 +172,3 @@ tools_available = {
     "bowtie2": Bowtie,
     "samfile": SamFile,
 }
-
-#config = {'method': 'bwa', 'bwa_fp': '/Users/zhaoc1/miniconda3/envs/pipeline1/bin/bwa', 'index': '/Users/zhaoc1/biodata/human_GRch38.fasta', 'num_threads': 16, 'keep_sam_file': False, 'bowtie2_fp': 'bowtie2'}
-#tool = FilteringTool(config)
-#summary_data = tool.decontaminate("R1.fastq", "R2.fastq", "/Users/zhaoc1/Work/github/decontam/decontamlib", "human", 0.5, 0.6)
-#summary_data = tool.decontaminate("R1.fastq", "None", "/Users/zhaoc1/Work/github/decontam/decontamlib", "human", 0.5, 0.6)

@@ -11,12 +11,13 @@ import sys
 from decontamlib.version import __version__
 from decontamlib.tools import FilteringTool
 
+
 def get_config(user_config_file, organism):
     config = {
         "method": "bwa",
         "bowtie2_fp": "bowtie2",
         "bwa_fp":"bwa",
-        "num_threads": 8
+        "num_threads":8
     }
 
     if user_config_file is None:
@@ -26,7 +27,7 @@ def get_config(user_config_file, organism):
             default_user_config_fp = os.path.expanduser("~/.decontam_phix.json")
         if os.path.exists(default_user_config_fp):
             user_config_file = open(default_user_config_fp)
-    
+
     if user_config_file is not None:
         user_config = json.load(user_config_file)
         config.update(user_config)
@@ -76,7 +77,6 @@ def human_filter_main(argv=None):
     p.add_argument(
         "--output-dir", required=True,
         help="Path to output directory")
-
     args = p.parse_args(argv)
 
     config = get_config(args.config_file, args.organism)
@@ -107,7 +107,8 @@ def human_filter_main(argv=None):
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
 
-    summary_data = tool.decontaminate(fwd_fp, rev_fp, args.output_dir, args.organism, args.pct, args.frac)
+    summary_data = tool.decontaminate(fwd_fp, rev_fp, args.output_dir,
+                                      args.organism, args.pct, args.frac)
     save_summary(args.summary_file, config, summary_data)
 
 
@@ -132,7 +133,7 @@ def make_index_main(argv=None):
         help="reference organism to filter from")
     args = p.parse_args(argv)
     config = get_config(args.config_file, args.organism)
-
+    
     tool = FilteringTool(config)
 
     if not tool.index_exists():
