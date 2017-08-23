@@ -2,8 +2,11 @@ import json
 from subprocess import call
 import os
 
-os.mkdir("data/log")
-os.mkdir("data/output")
+if not os.path.exists("data/log"):
+    os.mkdir("data/log")
+
+if not os.path.exists("data/output"):
+    os.mkdir("data/output")
 
 for p in map(lambda x: x/10.0,range(0,10)):
     for f in map(lambda x: x/10.0,range(0,10)):
