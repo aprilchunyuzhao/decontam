@@ -1,1 +1,1 @@
-{"data": {"false": 137, "true": 1}, "program": "decontam", "config": {"index": "/Users/gaughanc/decontam/human_100000.fasta", "bowtie2_fp": "bowtie2", "bwa_fp": "/Users/gaughanc/miniconda3/envs/py35/bin/bwa", "method": "bwa", "num_threads": 1, "keep_sam_file": false}, "version": "0.0.5"}
+{"config": {"keep_sam_file": false, "bwa_fp": "/Users/gaughanc/miniconda3/envs/py35/bin/bwa", "bowtie2_fp": "bowtie2", "method": "bwa", "num_threads": 1, "index": "/Users/gaughanc/decontam/human_100000.fasta"}, "data": {"false": 137, "true": 1}, "program": "decontam", "version": "0.0.5"}
