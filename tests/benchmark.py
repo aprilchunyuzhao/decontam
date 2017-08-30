@@ -9,15 +9,15 @@ if not os.path.exists("data/log"):
 if not os.path.exists("data/output"):
     os.mkdir("data/output")
 
-# for pct between 0.0 and 0.9
-for p in map(lambda x: x/10.0,range(0,10)):
-    #for frac between 0.0 and 0.9
-    for f in map(lambda x: x/10.0,range(0,10)):
+# for pct between 0.0 and 1.0
+for p in map(lambda x: x/10.0,range(0,11)):
+    #for frac between 0.0 and 1.0
+    for f in map(lambda x: x/10.0,range(0,11)):
         # print pct and frac
         print("pct: " + str(p) + " frac: " + str(f))
         # name summary files
-        hum_sum_file = "data/log/humanseqs" + "_" + str(p) + "_" + str(f) + ".json"
-        nonhum_sum_file = "data/log/nonhumanseqs" + "_" + str(p) + "_" + str(f) + ".json"
+        hum_sum_file = "data/log/humanseqs_{0}_{1}.json".format(p, f)
+        nonhum_sum_file = "data/log/nonhumanseqs_{0}_{1}.json".format(p, f)
         # run decontam over human seqs
         call(["decontaminate.py", "--forward-reads", "data/humanseqs.fastq", "--organism", "human", "--pct", str(p), "--frac", str(f), "--output-dir", "data/output/", "--summary-file", hum_sum_file])
         # run decontam over nonhuman seqs
