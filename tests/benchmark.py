@@ -30,17 +30,17 @@ for p in map(lambda x: x/10.0,range(0,11)):
         call(["decontaminate.py", "--forward-reads", data_path + "/nonhumanseqs.fastq", "--organism", "human", "--pct", str(p), "--frac", str(f), "--output-dir", output_path, "--summary-file", nonhum_sum_file])
         # from human seqs summary file, read and print number of true positive ("true" in data) and false negatives ("false" in data)  
         # from nonhuman seqs summary file, read and print number of false positives ("true" in data) and true negatives ("false" in data)
-        message = ["tru ", "fal ", "tru "]
+        message = ["tru", "fal", "tru"]
         for i, file in enumerate([hum_sum_file, nonhum_sum_file]):
             with open(file) as f:
-                res = json.loads(f.read())
-                mes = message[i] + "pos: "
-                if "true" in res["data"]:
-                    print(mes + str(res["data"]["true"]))
+                data = json.loads(f.read())["data"]
+                mess = "{} pos: ".format(message[i])
+                if "true" in data:
+                    print("{}{}".format(mess, data["true"]))
                 else:
-                    print(mes + "0")    
-                mes = message[i+1] + "neg: "
-                if "false" in res["data"]:
-                    print(mes + str(res["data"]["false"]))
+                    print("{}0".format(mess))    
+                mess = "{} neg: ".format(message[i+1])
+                if "false" in data:
+                    print("{}{}".format(mess, data["false"]))
                 else:
-                    print(mes + "0")
+                    print("{}0".format(mess))
