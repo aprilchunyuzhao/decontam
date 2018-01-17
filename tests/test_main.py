@@ -12,22 +12,22 @@ from decontamlib.main import (
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "data")
 
 
-class ConfigTests(unittest.TestCase):
-    def setUp(self):
-        self.temp_home_dir = tempfile.mkdtemp()
-        self._old_home_dir = os.environ['HOME']
-        os.environ['HOME'] = self.temp_home_dir
+# class ConfigTests(unittest.TestCase):
+#     def setUp(self):
+#         self.temp_home_dir = tempfile.mkdtemp()
+#         self._old_home_dir = os.environ['HOME']
+#         os.environ['HOME'] = self.temp_home_dir
 
-    def tearDown(self):
-        shutil.rmtree(self.temp_home_dir)
-        os.environ['HOME'] = self._old_home_dir
+#     def tearDown(self):
+#         shutil.rmtree(self.temp_home_dir)
+#         os.environ['HOME'] = self._old_home_dir
 
-    def test_default_config_locataion(self):
-        """Config file in user home dir should be read and used"""
-        with open(os.path.join(self.temp_home_dir, ".decontam_human.json"), "w") as f:
-            f.write('{"method": "SOMECRAZYVALUE"}')
-        config = get_config(None, "human")
-        self.assertEqual(config["method"], u"SOMECRAZYVALUE")
+#     def test_default_config_locataion(self):
+#         """Config file in user home dir should be read and used"""
+#         with open(os.path.join(self.temp_home_dir, ".decontam_human.json"), "w") as f:
+#             f.write('{"method": "SOMECRAZYVALUE"}')
+#         config = get_config(None, "human")
+#         self.assertEqual(config["method"], u"SOMECRAZYVALUE")
 
 
 
@@ -61,21 +61,18 @@ class HumanFilterMainTests(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     def test_with_sam_file(self):
-        sam_file = tempfile.NamedTemporaryFile(suffix=".sam")
-        sam_file.write(b5_sam.encode())
+        sam_file = tempfile.NamedTemporaryFile(suffix=".sam", mode="w")
+        sam_file.write(b5_sam)
         sam_file.seek(0)
         self.args.extend(["--sam-file", sam_file.name])
 
         # Set executable for BWA to "false"
         # This program always returns non-zero exit status
-        config_file = tempfile.NamedTemporaryFile(suffix=".json")
-        config = {"method": "bwa", "bwa_fp": "false"}
-        config_file.write(json.dumps(config).encode())
-        config_file.seek(0)
-        self.args.extend(["--config-file", config_file.name])
-        
+        self.args.extend(["--method", "bwa"])
+        self.args.extend(["--bwa_fp", "false"])
 
         human_filter_main(self.args)
+
         for fp in self.output_fps["human"]:
             self.assertTrue(os.path.exists(fp))
 
@@ -85,10 +82,8 @@ class HumanFilterMainTests(unittest.TestCase):
 
     def test_keep_sam_file(self):
         index_fp = os.path.join(data_dir, "fakehuman")
-        config_file = tempfile.NamedTemporaryFile(suffix=".json")
-        config_file.write(json.dumps({"method": "bwa", "index": index_fp}).encode())
-        config_file.seek(0)
-        self.args.extend(["--config-file", config_file.name])
+        self.args.extend(["--method", "bwa"])
+        self.args.extend(["--index", index_fp])
 
         self.args.extend(["--keep-sam-file"])
         human_filter_main(self.args)
@@ -97,11 +92,7 @@ class HumanFilterMainTests(unittest.TestCase):
 
 
     def test_all_human(self):
-        config_file = tempfile.NamedTemporaryFile(suffix=".json")
-        config_file.write(json.dumps({"method": "all_human"}).encode())
-        config_file.seek(0)
-        self.args.extend(["--config-file", config_file.name])
-
+        self.args.extend(["--method", "all_human"])
         human_filter_main(self.args)
 
         with open(self.summary_fp) as f:
@@ -118,11 +109,7 @@ class HumanFilterMainTests(unittest.TestCase):
 
 
     def test_no_human(self):
-        config_file = tempfile.NamedTemporaryFile(suffix=".json")
-        config_file.write(str.encode(json.dumps({"method": "no_human"})))
-        config_file.seek(0)
-        self.args.extend(["--config-file", config_file.name])
-
+        self.args.extend(["--method", "no_human"])
         human_filter_main(self.args)
 
         with open(self.summary_fp) as f:
@@ -140,10 +127,8 @@ class HumanFilterMainTests(unittest.TestCase):
 
     def test_bowtie(self):
         index_fp = os.path.join(data_dir, "fakehuman")
-        config_file = tempfile.NamedTemporaryFile(suffix=".json")
-        config_file.write(json.dumps({"method": "bowtie2", "index": index_fp}).encode())
-        config_file.seek(0)
-        self.args.extend(["--config-file", config_file.name])
+        self.args.extend(["--method", "bowtie2"])
+        self.args.extend(["--index", index_fp])
 
         human_filter_main(self.args)
 
@@ -156,10 +141,8 @@ class HumanFilterMainTests(unittest.TestCase):
 
     def test_bwa(self):
         index_fp = os.path.join(data_dir, "fakehuman")
-        config_file = tempfile.NamedTemporaryFile(suffix=".json")
-        config_file.write(json.dumps({"method": "bwa", "index": index_fp}).encode())
-        config_file.seek(0)
-        self.args.extend(["--config-file", config_file.name])
+        self.args.extend(["--method", "bwa"])
+        self.args.extend(["--index", index_fp])
 
         human_filter_main(self.args)
 
@@ -169,6 +152,9 @@ class HumanFilterMainTests(unittest.TestCase):
         for fp in self.output_fps["nonhuman"]:
             self.assertTrue(os.path.exists(fp))
 
+
+if __name__ == "__main__":
+    unittest.main()
 
 b5_r1_nonhuman = """\
 @M03249:9:000000000-ABY6B:1:1105:5122:20594 1:N:0:7
@@ -242,7 +228,3 @@ M03249:9:000000000-ABY6B:1:1114:7097:17216	141	*	0	0	*	*	0	0	CGGCTACATCATCGGTCTG
 M03249:9:000000000-ABY6B:1:1109:21977:10252	77	*	0	0	*	*	0	0	GGATCAGGCAACGAGATCACAACTGGCAGCGAGACCACAACCGGCAGTGTGACAGCACCACAACAGATAGGTTCAACACAAATCAGCACGCCAACGGGCATTACAACATTTGGTAACCAGAGCAGCGTAAACACCGCAAACGCACTGCAAATGATGAGCGGACTACTGAGCAACCTTGCGAATGCTGGAAGCCAAGCAAGCGCCAAGAAGTACAACAGCGCGGAAGCAGCAGCAGAACGAGCGTTCCAGAA	DECDDFFFFDFDGGGGGGGGGGGHHHHHGGGGGGGGHHHHGGGGGGGHHHHHHHHHHHHHHHHGHHHHHHHGHHHHHHGHGHHHHHHHHGGGGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHHHGGGGHHHHGGGGGGHGGGGGHHHHHHHHHHHHHGGGGGHHGGGGGGGGGGGGGGGGGGGHHGGGGGGFFFFFFFFFFFFFFFFFBFFFFFFFFFFFFAFFFFFFFFFFFFFFFFFFFBDFFFFFF	AS:i:0	XS:i:0
 M03249:9:000000000-ABY6B:1:1109:21977:10252	141	*	0	0	*	*	0	0	GGCTTCCAATGCTTGCAGATGCTCCTGATGGTGCGCTTGTTGCTCCGTTGGTCGCTGCCAGAATTGGGTTGATTCCCGCTGCGATCATGTCCTTTACGGTATCCTGATAGGCTGTTCCGCGCATTTCCTTCTGGAACGCTCGTTCTGCTGCTGCTTCCGCGCTGTTGTACTTCTTGGCGCTTGCTTGGCTTCCAGCATTCGCAAGGTTGCTCAGTAGTCCGCTCATCATTTGCAGTGCGTTTGCGGTGTTT	BBBCCFFFFFFFGGGGGGGGGGHHHHHHHHHHHHGGGGGHHHHHHHGHHGHGHGGGGGHHHFHHHHHHGGGHHHHHHGGGGGGGGGGHHHHHHHHHHGGHHGHHHHHHGHHHHHHHHHGGGGGGGHHHHHHHHHHHHGGGGGGGHGHHHHHHHHHHHHGGGGGGGGHHHHHHHHHHHGGGGGGGHHGGGGGGGGFGFFGGGGG??GGGGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAFFFFDFDFF	AS:i:0	XS:i:0
 """
-
-
-if __name__ == "__main__":
-    unittest.main()
