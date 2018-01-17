@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import tempfile
 
-import decontamlib.utils as utils
+import decontamlib as utils
 from decontamlib.fastq import FastqSplitter
 from decontamlib.sam import get_mapped_reads
 
